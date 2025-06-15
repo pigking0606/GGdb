@@ -84,6 +84,8 @@ public abstract class AbstractCache<T> {
             lock.lock();
             Integer ref = references.get(key) - 1;
             if (ref == 0){
+                T obj = cache.get(key);
+                releaseForCache(obj);
                 cache.remove(key);
                 references.remove(key);
                 count--;
