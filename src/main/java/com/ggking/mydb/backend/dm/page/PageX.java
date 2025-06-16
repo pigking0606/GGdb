@@ -21,7 +21,7 @@ public class PageX {
         System.arraycopy(Parser.short2Byte(ofData), 0, raw, OF_FREE, OF_DATA);
     }
 
-    private static short getFSO(Page pg){
+    public static short getFSO(Page pg){
         return getFSO(pg.getData());
     }
 

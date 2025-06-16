@@ -1,5 +1,8 @@
 package com.ggking.mydb.backend.dm;
 
+import com.ggking.mydb.backend.common.SubArray;
+import com.ggking.mydb.backend.dm.dataItem.DataItem;
+import com.ggking.mydb.backend.dm.dataItem.DataItemImpl;
 import com.ggking.mydb.backend.dm.logger.Logger;
 import com.ggking.mydb.backend.dm.page.Page;
 import com.ggking.mydb.backend.dm.page.PageX;
@@ -7,6 +10,7 @@ import com.ggking.mydb.backend.dm.pageCache.PageCache;
 import com.ggking.mydb.backend.tm.TransactionManager;
 import com.ggking.mydb.backend.utils.Panic;
 import com.ggking.mydb.backend.utils.Parser;
+import com.google.common.primitives.Bytes;
 
 import java.util.*;
 
@@ -16,6 +20,10 @@ public class Recover {
 
     private static final int REDO = 0;
     private static final int UNDO = 1;
+
+
+
+
 
     static class InsertLogInfo {
         long xid;
@@ -133,7 +141,16 @@ public class Recover {
     private static final int OF_XID = OF_TYPE+1;
     private static final int OF_UPDATE_UID = OF_XID+8;
     private static final int OF_UPDATE_RAW = OF_UPDATE_UID+8;
-    
+
+    public static byte[] updateLog(long xid, DataItemImpl di) {
+        byte[] logTypeRaw = {LOG_TYPE_UPDATE};
+        byte[] xidRaw = Parser.long2Byte(xid);
+        byte[] uidRaw = Parser.long2Byte(di.getUid());
+        byte[] oldRaw = di.getOldRaw();
+        SubArray raw = di.getRaw();
+        byte[] newRaw = Arrays.copyOfRange(raw.raw,raw.start,raw.end);
+        return Bytes.concat(logTypeRaw,xidRaw,uidRaw,oldRaw,newRaw);
+    }
     private static void doUpdateLog(PageCache pc, byte[] log, int flag) {
         int pgno;
         short offset;
@@ -183,6 +200,14 @@ public class Recover {
     private static final int OF_INSERT_OFFSET = OF_INSERT_PGNO+4;
     private static final int OF_INSERT_RAW = OF_INSERT_OFFSET+2;
 
+    public static byte[] insertLog(long xid, Page pg, byte[] raw) {
+        byte[] logTypeRaw = {LOG_TYPE_INSERT};
+        byte[] xidRaw = Parser.long2Byte(xid);
+        byte[] pgnoRaw = Parser.int2Byte(pg.getPageNumber());
+        byte[] offsetRaw = Parser.short2Byte(PageX.getFSO(pg));
+
+        return Bytes.concat(logTypeRaw,xidRaw,pgnoRaw,offsetRaw,raw);
+    }
     private static void doInsertLog(PageCache pc, byte[] log, int flag) {
         InsertLogInfo li = parseInsertLog(log);
 
