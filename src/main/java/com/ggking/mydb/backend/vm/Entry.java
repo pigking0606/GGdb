@@ -8,7 +8,7 @@ import com.google.common.primitives.Bytes;
 import java.util.Arrays;
 
 
-public class Entry {
+ public class Entry {
     private static final int OF_XMIN = 0;
     private static final int OF_XMAX = OF_XMIN + 8;
     private static final int OF_DATA = OF_XMAX + 8;
@@ -18,7 +18,7 @@ public class Entry {
     private VersionManager vm;
 
     public static Entry loadEntry(VersionManager vm,long uid)throws Exception{
-        DataItem di = (VersionManagerImpl)vm.dm.read(uid);
+        DataItem di = ((VersionManagerImpl)vm).dm.read(uid);
         return newEntry(vm,di,uid);
     }
 
@@ -58,6 +58,10 @@ public class Entry {
         }
     }
 
+    public long getUid(){
+        return uid;
+    }
+
     public long getXmin() {
         dataItem.rLock();
         try {
@@ -76,6 +80,9 @@ public class Entry {
         } finally {
             dataItem.rUnLock();
         }
+    }
+    public void release() {
+        ((VersionManagerImpl)vm).releaseEntry(this);
     }
 
     public  void remove(){

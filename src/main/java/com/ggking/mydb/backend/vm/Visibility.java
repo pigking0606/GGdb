@@ -34,4 +34,22 @@ public class Visibility {
         }
         return false;
     }
+
+    public static boolean isVersionSkip(TransactionManager tm,Transaction t,Entry entry){
+        long xmax = entry.getXmax();
+        if (t.level == 0){
+            return false;
+        }else {
+            return tm.isCommitted(xmax) && (xmax > t.xid || t.idInSnapdhot(xmax));
+        }
+    }
+
+    public static boolean isVisible(TransactionManager tm,Transaction t,Entry entry){
+        if (t.level == 0){
+            return readCommitted(tm,t,entry);
+        }else {
+            return repeatableRead(tm,t,entry);
+        }
+    }
+
 }
