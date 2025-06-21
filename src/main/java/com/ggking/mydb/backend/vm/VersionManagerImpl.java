@@ -3,8 +3,6 @@ package com.ggking.mydb.backend.vm;
 
 import com.ggking.mydb.backend.common.AbstractCache;
 import com.ggking.mydb.backend.dm.DataManager;
-import com.ggking.mydb.backend.dm.DataManagerImpl;
-import com.ggking.mydb.backend.dm.dataItem.DataItemImpl;
 import com.ggking.mydb.backend.tm.TransactionManager;
 import com.ggking.mydb.backend.utils.Panic;
 import com.ggking.mydb.common.Error;
